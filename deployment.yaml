@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techno-eks
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techno-app
+  template:
+    metadata:
+      labels:
+        app: techno-app
+    spec:
+      containers:
+        - name: techno
+          image: 757075908018.dkr.ecr.us-east-1.amazonaws.com/techno-ecr-imannuel:v.2.1.5
+          ports:
+            - containerPort: 2000
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: AWS_ACCESS_KEY_ID
+
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: AWS_SECRET_ACCESS_KEY
+
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: AWS_SESSION_TOKEN
+
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: AWS_REGION
+
+            - name: API_GATEWAY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: API_GATEWAY_URL
+            
+            - name: S3_STAGING_DIR
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: S3_STAGING_DIR
+
+            - name: ATHENA_DB
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: ATHENA_DB
+
+            - name: ATHENA_SCHEMA_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: ATHENA_SCHEMA_NAME
+
+            - name: FLASK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: FLASK_SECRET_KEY
+
+            - name: SNS_TOPIC_ARN
+              valueFrom:
+                secretKeyRef:
+                  name: pod-secret
+                  key: SNS_TOPIC_ARN
+
+                  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techno-app-service
+spec:
+  selector:
+    app: techno-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 2000
+  type: LoadBalancer
